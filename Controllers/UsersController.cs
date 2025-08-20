@@ -18,7 +18,7 @@ namespace UserAPI.Controllers
             _userRepository = userRepository;
         }
 
-        [HttpPost]
+        [HttpPost("create-user")]
         public async Task<ActionResult<User>>CreateUser(User user)
         {
             //checkign if email is already registered in the DB
@@ -42,6 +42,26 @@ namespace UserAPI.Controllers
             return Ok(new { code = 200, message = "Successful request", status = true });
         }
 
-        
+        [HttpPost("check-login")]
+        public async Task<ActionResult<User>>CheckLogin(User user)
+        {
+            if(user == null)
+            {
+                return BadRequest(new { code = 400, message = "Bad request", status = false });
+            }
+
+
+            var checking = await _userRepository.CheckLoginCredentials(user);
+
+            if(checking == null)
+            {
+                return Unauthorized(new { code = 401, message = "Unauthorized. Invalid email or password", status = false });
+            }
+
+            return Ok(new { code = 200, message = "Successful request", status = true, data = checking });
+
+        }
+
+
     }
 }

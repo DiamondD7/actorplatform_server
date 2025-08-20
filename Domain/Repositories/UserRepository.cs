@@ -39,6 +39,30 @@ namespace UserAPI.Domain.Repositories
             return true;
         }
 
+        public async Task<User> CheckLoginCredentials(User user)
+        {
+            var retrieveUser = await _context.UsersTable
+                .FirstOrDefaultAsync(x => x.Email == user.Email);
+
+            if (retrieveUser == null)
+            {
+                return null; //if user not found, return null
+            }
+
+            if (retrieveUser.AuthProvider == "google")
+            {
+                //if the user is logged in using google, then return the user without checking password
+                return retrieveUser;
+            }
+
+            if(retrieveUser.Password != HashPassword(user.Password))
+            {
+                return null; //if password does not match, return null
+            }
+
+            return retrieveUser; //if user found and password matches, return the user
+        }
+
         public async Task<bool> CheckExistingEmailAsync(string email)
         {
             if(string.IsNullOrEmpty(email))
