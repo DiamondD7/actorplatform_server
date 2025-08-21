@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Cryptography;
 using System.Text;
@@ -17,6 +18,14 @@ namespace UserAPI.Controllers
         {
             _userRepository = userRepository;
         }
+
+        [Authorize]
+        [HttpGet("test-data")]
+        public async Task<IEnumerable<User>>GetUserTest()
+        {
+            return await _userRepository.GetAllUserTest();
+        }
+
 
         [HttpPost("create-user")]
         public async Task<ActionResult<User>>CreateUser(User user)
@@ -42,6 +51,7 @@ namespace UserAPI.Controllers
             return Ok(new { code = 200, message = "Successful request", status = true });
         }
 
+
         [HttpPost("check-login")]
         public async Task<ActionResult<User>>CheckLogin(User user)
         {
@@ -60,6 +70,33 @@ namespace UserAPI.Controllers
 
             return Ok(new { code = 200, message = "Successful request", status = true, data = checking });
 
+        }
+
+        [HttpPost("validate-tokens")]
+        public async Task<ActionResult<JwtDTO>>CheckingValidateTokens(User user)
+        {
+            var tokens = await _userRepository.GenerateTokenAsync(user);
+            if(tokens == null)
+            {
+                return BadRequest(new { code = 400, message = "Bad Request", status = false });
+            }
+
+            Response.Cookies.Append("jwt", tokens.AccessToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = tokens.AccessTokenExpiry
+            });
+
+            Response.Cookies.Append("rft", tokens.RefreshToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None
+            });
+
+            return Ok(new { code = 200, message = "Successful Request", status = true });
         }
 
 

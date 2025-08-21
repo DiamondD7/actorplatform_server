@@ -4,16 +4,50 @@ using System.Text;
 using UserAPI.Data;
 using UserAPI.Domain.Interfaces;
 using UserAPI.Models;
+using UserAPI.Services.Jwt;
 
 namespace UserAPI.Domain.Repositories
 {
     public class UserRepository : IUserRepository
     {
         private readonly AppDbContext _context;
-        public UserRepository(AppDbContext context)
+        private readonly IConfiguration _config;
+        public UserRepository(AppDbContext context, IConfiguration config)
         {
             _context = context;
+            _config = config;
         }
+
+        public async Task<IEnumerable<User>> GetAllUserTest()
+        {
+            return await _context.UsersTable.ToListAsync();
+        }
+
+        public async Task<JwtDTO> GenerateTokenAsync(User user)
+        {
+            JwtService jwtService = new JwtService(_config);
+            var generateTokens = jwtService.GenerateTokens(user);
+
+            if(generateTokens == null)
+            {
+                return null;
+            }
+
+            var userDetails = await _context.UsersTable.FirstOrDefaultAsync(x => x.Id == user.Id);
+            userDetails.RefreshToken = generateTokens.RefreshToken;
+            userDetails.RefreshExpiryDate = generateTokens.RefreshTokenExpiry;
+            _context.Entry(userDetails).State = EntityState.Modified;
+
+            await _context.SaveChangesAsync();
+
+            return new JwtDTO
+            {
+                AccessToken = generateTokens.AccessToken,
+                RefreshToken = generateTokens.RefreshToken,
+                AccessTokenExpiry = generateTokens.AccessTokenExpiry,
+            };
+        }
+
         public async Task<bool>CreateUserAsync(User user)
         {
             if(user == null)

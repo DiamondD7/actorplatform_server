@@ -16,5 +16,8 @@ namespace UserAPI.Models
         public string? ProviderId { get; set; }
         public string? AuthProvider { get; set; } = "local"; //this if the acc is made using google or a normal sign up
 
+        public string? RefreshToken { get; set; }
+        public DateTime? RefreshExpiryDate { get; set; }
+
     }
 }
