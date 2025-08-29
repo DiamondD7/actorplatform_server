@@ -18,11 +18,6 @@ namespace UserAPI.Domain.Repositories
             _config = config;
         }
 
-        public async Task<IEnumerable<User>> GetAllUserTest()
-        {
-            return await _context.UsersTable.ToListAsync();
-        }
-
         public async Task<JwtDTO> GenerateTokenAsync(User user)
         {
             JwtService jwtService = new JwtService(_config);
