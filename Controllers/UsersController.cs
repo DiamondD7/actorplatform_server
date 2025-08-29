@@ -19,13 +19,6 @@ namespace UserAPI.Controllers
             _userRepository = userRepository;
         }
 
-        [Authorize]
-        [HttpGet("test-data")]
-        public async Task<IEnumerable<User>>GetUserTest()
-        {
-            return await _userRepository.GetAllUserTest();
-        }
-
 
         [HttpPost("create-user")]
         public async Task<ActionResult<User>>CreateUser(User user)
@@ -99,6 +92,27 @@ namespace UserAPI.Controllers
             return Ok(new { code = 200, message = "Successful Request", status = true });
         }
 
+
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            Response.Cookies.Append("jwt", string.Empty, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = DateTime.Now.AddDays(-1)
+            });
+
+            Response.Cookies.Append("rft", string.Empty, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None
+            });
+
+            return Ok(new { code = 200, message = "Successful Request", status = true });
+        }
 
     }
 }

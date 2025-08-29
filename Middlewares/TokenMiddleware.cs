@@ -16,6 +16,13 @@ namespace UserAPI.Middlewares
 
         public async Task InvokeAsync(HttpContext context, IServiceProvider serviceProvider)
         {
+            string requestPath = context.Request.Path.Value;
+            if (requestPath.StartsWith("/api/Users/validate-tokens") || 
+                requestPath.StartsWith("/api/Users/logout"))
+            {
+                await _next(context);
+                return;
+            }
 
             var accessToken = context.Request.Cookies["jwt"];
             var refreshToken = context.Request.Cookies["rft"];
