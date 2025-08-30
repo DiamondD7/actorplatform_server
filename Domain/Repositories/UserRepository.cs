@@ -110,6 +110,62 @@ namespace UserAPI.Domain.Repositories
 
         }
 
+        public async Task<string> UploadProfilePictureAsync(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return string.Empty;
+            }
+
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "profile-pictures");
+
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+
+            return $"/profile-pictures/{uniqueFileName}";
+        }
+
+        public async Task<bool> UpdateUserDataAsync(User user)
+        {
+            var getUser = await _context.UsersTable.FindAsync(user.Id);
+
+            if(getUser == null)
+            {
+                return false;
+            }
+
+            var newUserData = new User();
+
+            if (!string.IsNullOrEmpty(user.Gender))
+            {
+                newUserData.Gender = user.Gender;
+            }
+
+            if (!string.IsNullOrEmpty(user.Password))
+            {
+                var hashedPW = HashPassword(user.Password);
+                newUserData.Password = hashedPW;
+            }
+
+            if (!string.IsNullOrEmpty(user.ProfilePictureUrl))
+            {
+                newUserData.ProfilePictureUrl = user.ProfilePictureUrl;
+            }
+
+            return true;
+        }
+
 
         public string HashPassword(string password)
         {

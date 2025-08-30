@@ -92,6 +92,18 @@ namespace UserAPI.Controllers
             return Ok(new { code = 200, message = "Successful Request", status = true });
         }
 
+        [HttpPost("upload-profile-picture")]
+        public async Task<IActionResult>UploadProfilePicture(IFormFile file)
+        {
+            var uploadPicture = await _userRepository.UploadProfilePictureAsync(file);
+            if(uploadPicture == string.Empty)
+            {
+                return BadRequest(new { code = 400, message = "Bad Request", status = false });   
+            }
+
+            return Ok(new { code = 200, message = "Successful upload", status = true, imageUrl = uploadPicture });
+        }
+
 
         [HttpPost("logout")]
         public IActionResult Logout()
