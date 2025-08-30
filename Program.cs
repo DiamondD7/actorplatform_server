@@ -77,6 +77,7 @@ namespace actorplatform_server
 
             // Configure the HTTP request pipeline.
 
+            app.UseStaticFiles();
             app.UseHttpsRedirection();
             app.UseRouting();
 

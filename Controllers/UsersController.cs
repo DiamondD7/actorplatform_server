@@ -19,6 +19,20 @@ namespace UserAPI.Controllers
             _userRepository = userRepository;
         }
 
+        [Authorize]
+        [HttpGet("{id}")]
+        public async Task<ActionResult<User>> GetTheUserData(Guid id)
+        {
+            var getData = await _userRepository.GetTheUserDataAsync(id);
+
+            if(getData == null)
+            {
+                return BadRequest(new { code = 400, message = "Bad Request", status = false });
+            }
+
+            return Ok(getData);
+        }
+
 
         [HttpPost("create-user")]
         public async Task<ActionResult<User>>CreateUser(User user)
@@ -92,6 +106,7 @@ namespace UserAPI.Controllers
             return Ok(new { code = 200, message = "Successful Request", status = true });
         }
 
+        [Authorize]
         [HttpPost("upload-profile-picture")]
         public async Task<IActionResult>UploadProfilePicture(IFormFile file)
         {
@@ -102,6 +117,20 @@ namespace UserAPI.Controllers
             }
 
             return Ok(new { code = 200, message = "Successful upload", status = true, imageUrl = uploadPicture });
+        }
+
+        [Authorize]
+        [HttpPut("update-user-data")]
+        public async Task<IActionResult>UpdateUserData(User user)
+        {
+            var updateData = await _userRepository.UpdateUserDataAsync(user);
+
+           if(updateData == false)
+           {
+                return BadRequest(new { code = 400, message = "Bad Request", status = false });
+           }
+
+            return Ok(new { code = 200, message = "Successful Request", status = true });
         }
 
 

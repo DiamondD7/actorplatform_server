@@ -18,6 +18,11 @@ namespace UserAPI.Domain.Repositories
             _config = config;
         }
 
+        public async Task<User> GetTheUserDataAsync(Guid id)
+        {
+            return await _context.UsersTable.FindAsync(id);
+        }
+
         public async Task<JwtDTO> GenerateTokenAsync(User user)
         {
             JwtService jwtService = new JwtService(_config);
@@ -145,23 +150,25 @@ namespace UserAPI.Domain.Repositories
                 return false;
             }
 
-            var newUserData = new User();
 
             if (!string.IsNullOrEmpty(user.Gender))
             {
-                newUserData.Gender = user.Gender;
+                getUser.Gender = user.Gender;
             }
 
             if (!string.IsNullOrEmpty(user.Password))
             {
                 var hashedPW = HashPassword(user.Password);
-                newUserData.Password = hashedPW;
+                getUser.Password = hashedPW;
             }
 
             if (!string.IsNullOrEmpty(user.ProfilePictureUrl))
             {
-                newUserData.ProfilePictureUrl = user.ProfilePictureUrl;
+                getUser.ProfilePictureUrl = user.ProfilePictureUrl;
             }
+
+            _context.Entry(getUser).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
 
             return true;
         }

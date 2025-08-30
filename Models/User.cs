@@ -6,7 +6,7 @@ namespace UserAPI.Models
     {
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
-        public string? ProfilePictureUrl { get; set; }
+        public string? ProfilePictureUrl { get; set; } = "/profile-pictures/avatar-ungendered.png";
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
         public string? FullName { get; set; }
