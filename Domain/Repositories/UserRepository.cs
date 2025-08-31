@@ -189,6 +189,11 @@ namespace UserAPI.Domain.Repositories
                 getUser.UserName = user.UserName;
             }
 
+            if (!string.IsNullOrEmpty(user.MobileNumber))
+            {
+                getUser.MobileNumber = user.MobileNumber;
+            }
+
             _context.Entry(getUser).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
