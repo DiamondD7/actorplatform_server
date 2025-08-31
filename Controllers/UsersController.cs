@@ -133,7 +133,7 @@ namespace UserAPI.Controllers
 
            if(updateData == false)
            {
-                return BadRequest(new { code = 400, message = "Bad Request", status = false });
+                return Conflict(new { code = 409, message = "Username is already taken", status = false });
            }
 
             return Ok(new { code = 200, message = "Successful Request", status = true });

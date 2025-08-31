@@ -157,11 +157,6 @@ namespace UserAPI.Domain.Repositories
         {
             var getUser = await _context.UsersTable.FindAsync(user.Id);
 
-            if(getUser == null)
-            {
-                return false;
-            }
-
 
             if (!string.IsNullOrEmpty(user.Gender))
             {
@@ -182,6 +177,16 @@ namespace UserAPI.Domain.Repositories
             if (!string.IsNullOrEmpty(user.Bio))
             {
                 getUser.Bio = user.Bio;
+            }
+
+            if (!string.IsNullOrEmpty(user.UserName))
+            {
+                var isUserNameUnique = await CheckExistingUserNameAsync(user.UserName);
+                if(isUserNameUnique == false)
+                {
+                    return false;
+                }
+                getUser.UserName = user.UserName;
             }
 
             _context.Entry(getUser).State = EntityState.Modified;
