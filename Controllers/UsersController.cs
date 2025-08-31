@@ -41,10 +41,16 @@ namespace UserAPI.Controllers
             if (!string.IsNullOrEmpty(user.Email))
             {
                 var checkEmail = await _userRepository.CheckExistingEmailAsync(user.Email);
-                if(checkEmail == false)
+                var checkUserName = await _userRepository.CheckExistingUserNameAsync(user.UserName);
+                if (checkEmail == false)
                 {
                     return Conflict(new { code = 409, message = "Email is already registered", status = false });
+                } 
+                else if(checkUserName == false)
+                {
+                    return Conflict(new { code = 409, message = "Username is already taken", status = false });
                 }
+
             }
 
 

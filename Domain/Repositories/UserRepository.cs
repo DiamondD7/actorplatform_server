@@ -55,9 +55,12 @@ namespace UserAPI.Domain.Repositories
                 return false;
             }
 
+            string guid = Guid.NewGuid().ToString("N");
+            string googleUserName = $"a{guid.Substring(0, 15)}";
            
             var newUser = new User
             {
+                UserName = user.AuthProvider == "google" ? googleUserName : user.UserName,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 FullName = $"{user.FirstName} {user.LastName}",
@@ -99,10 +102,6 @@ namespace UserAPI.Domain.Repositories
 
         public async Task<bool> CheckExistingEmailAsync(string email)
         {
-            if(string.IsNullOrEmpty(email))
-            {
-                return false;
-            }
 
             var checking = await _context.UsersTable.FirstOrDefaultAsync(x => x.Email == email);
 
@@ -113,6 +112,19 @@ namespace UserAPI.Domain.Repositories
 
             return false; //if an existing email found, then return false
 
+        }
+
+        public async Task<bool> CheckExistingUserNameAsync(string userName)
+        {
+
+            var checking = await _context.UsersTable.FirstOrDefaultAsync(x => x.UserName == userName);
+
+            if(checking == null)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         public async Task<string> UploadProfilePictureAsync(IFormFile file)
