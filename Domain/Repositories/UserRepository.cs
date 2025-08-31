@@ -167,6 +167,11 @@ namespace UserAPI.Domain.Repositories
                 getUser.ProfilePictureUrl = user.ProfilePictureUrl;
             }
 
+            if (!string.IsNullOrEmpty(user.Bio))
+            {
+                getUser.Bio = user.Bio;
+            }
+
             _context.Entry(getUser).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
