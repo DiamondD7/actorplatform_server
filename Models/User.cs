@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace UserAPI.Models
 {
@@ -23,6 +24,23 @@ namespace UserAPI.Models
         public Appearance? Appearance { get; set; } = new Appearance();
         public PersonalBackground? PersonalBackground { get; set; } = new PersonalBackground();
 
+        public UserBackground? UserBackground { get; set; }
+
+    }
+
+    public class UserBackground
+    {
+        [Key]
+        public int Id { get; set; }
+        [ForeignKey(nameof(User))]
+        public Guid UserId { get; set; }
+        public User User { get; set; } = null!;
+
+        public string? Title { get; set; }
+        public string? Production { get; set; }
+        public string? Role { get; set; }
+        public string? Director { get; set; }
+
     }
 
     public class Appearance
@@ -40,4 +58,6 @@ namespace UserAPI.Models
         public string? Ethnicity { get; set; } = "";
         public string? NaturalAccent { get; set; } = "";
     }
+
+
 }
