@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using UserAPI.Data;
 
@@ -11,9 +12,11 @@ using UserAPI.Data;
 namespace UserAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250901113104_addedAppearanceClassandProps")]
+    partial class addedAppearanceClassandProps
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -45,25 +48,6 @@ namespace UserAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Appearance");
-                });
-
-            modelBuilder.Entity("UserAPI.Models.PersonalBackground", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Ethnicity")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NaturalAccent")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("PersonalBackground");
                 });
 
             modelBuilder.Entity("UserAPI.Models.User", b =>
@@ -102,9 +86,6 @@ namespace UserAPI.Migrations
                     b.Property<string>("Password")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("PersonalBackgroundId")
-                        .HasColumnType("int");
-
                     b.Property<string>("ProfilePictureUrl")
                         .HasColumnType("nvarchar(max)");
 
@@ -124,40 +105,7 @@ namespace UserAPI.Migrations
 
                     b.HasIndex("AppearanceId");
 
-                    b.HasIndex("PersonalBackgroundId");
-
                     b.ToTable("UsersTable");
-                });
-
-            modelBuilder.Entity("UserAPI.Models.UserBackground", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Director")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Production")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Role")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Title")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId")
-                        .IsUnique();
-
-                    b.ToTable("UserBackground");
                 });
 
             modelBuilder.Entity("UserAPI.Models.User", b =>
@@ -166,29 +114,7 @@ namespace UserAPI.Migrations
                         .WithMany()
                         .HasForeignKey("AppearanceId");
 
-                    b.HasOne("UserAPI.Models.PersonalBackground", "PersonalBackground")
-                        .WithMany()
-                        .HasForeignKey("PersonalBackgroundId");
-
                     b.Navigation("Appearance");
-
-                    b.Navigation("PersonalBackground");
-                });
-
-            modelBuilder.Entity("UserAPI.Models.UserBackground", b =>
-                {
-                    b.HasOne("UserAPI.Models.User", "User")
-                        .WithOne("UserBackground")
-                        .HasForeignKey("UserAPI.Models.UserBackground", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("UserAPI.Models.User", b =>
-                {
-                    b.Navigation("UserBackground");
                 });
 #pragma warning restore 612, 618
         }

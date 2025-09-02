@@ -20,7 +20,9 @@ namespace UserAPI.Domain.Repositories
 
         public async Task<User> GetTheUserDataAsync(Guid id)
         {
-            return await _context.UsersTable.FindAsync(id);
+            return await _context.UsersTable.Include(x=>x.Appearance)
+                .Include(x => x.PersonalBackground)
+                .FirstOrDefaultAsync(x=>x.Id==id);
         }
 
         public async Task<JwtDTO> GenerateTokenAsync(User user)
@@ -155,12 +157,8 @@ namespace UserAPI.Domain.Repositories
 
         public async Task<bool> UpdateUserDataAsync(User user)
         {
-            var getUser = await _context.UsersTable.FindAsync(user.Id);
-
-            if(getUser == null)
-            {
-                return false;
-            }
+            var getUser = await _context.UsersTable.Include(x => x.Appearance).Include(x => x.PersonalBackground)
+                .FirstOrDefaultAsync(x=>x.Id==user.Id);
 
 
             if (!string.IsNullOrEmpty(user.Gender))
@@ -183,6 +181,60 @@ namespace UserAPI.Domain.Repositories
             {
                 getUser.Bio = user.Bio;
             }
+
+            if (!string.IsNullOrEmpty(user.UserName))
+            {
+                var isUserNameUnique = await CheckExistingUserNameAsync(user.UserName);
+                if(isUserNameUnique == false)
+                {
+                    return false;
+                }
+                getUser.UserName = user.UserName;
+            }
+
+            if (!string.IsNullOrEmpty(user.MobileNumber))
+            {
+                getUser.MobileNumber = user.MobileNumber;
+            }
+
+            if(user.Appearance != null)
+            {
+                if (!string.IsNullOrEmpty(user.Appearance.Height))
+                {
+
+                    getUser.Appearance.Height = user.Appearance.Height;
+                }
+
+                if (!string.IsNullOrEmpty(user.Appearance.Weight))
+                {
+                    getUser.Appearance.Weight = user.Appearance.Weight;
+                }
+
+                if (!string.IsNullOrEmpty(user.Appearance.HairColor))
+                {
+                    getUser.Appearance.HairColor = user.Appearance.HairColor;
+                }
+
+                if (!string.IsNullOrEmpty(user.Appearance.EyeColor))
+                {
+                    getUser.Appearance.EyeColor = user.Appearance.EyeColor;
+                }
+            }
+
+            if(user.PersonalBackground != null)
+            {
+                if (!string.IsNullOrEmpty(user.PersonalBackground.Ethnicity))
+                {
+                    getUser.PersonalBackground.Ethnicity = user.PersonalBackground.Ethnicity;
+                }
+
+                if (!string.IsNullOrEmpty(user.PersonalBackground.NaturalAccent))
+                {
+                    getUser.PersonalBackground.NaturalAccent = user.PersonalBackground.NaturalAccent;
+                }
+            }
+
+
 
             _context.Entry(getUser).State = EntityState.Modified;
             await _context.SaveChangesAsync();
