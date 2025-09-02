@@ -21,9 +21,9 @@ namespace UserAPI.Data
 
             //User <=> UserBackground (one to one relationship)
             modelBuilder.Entity<User>()
-                .HasOne(u => u.UserBackground)
+                .HasMany(u => u.UserBackgrounds)
                 .WithOne(p => p.User)
-                .HasForeignKey<UserBackground>(p => p.UserId)
+                .HasForeignKey(p => p.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

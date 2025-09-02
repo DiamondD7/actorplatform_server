@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Collections.ObjectModel;
 using System.Security.Cryptography;
 using System.Text;
 using UserAPI.Data;
@@ -24,6 +25,16 @@ namespace UserAPI.Domain.Repositories
                 .Include(x => x.PersonalBackground)
                 .FirstOrDefaultAsync(x=>x.Id==id);
         }
+
+        public async Task<List<UserBackground>> GetUserBackgroundAsync(Guid userId)
+        {
+            var getList = await _context.UserBackground.Where(x => x.UserId == userId).ToListAsync();
+
+            return getList;
+        }
+
+
+
 
         public async Task<JwtDTO> GenerateTokenAsync(User user)
         {
@@ -242,6 +253,62 @@ namespace UserAPI.Domain.Repositories
             return true;
         }
 
+
+        public async Task<bool> UpdateUserBackgroundDataAsync(UserBackgroundDTO model)
+        {
+            try
+            {
+                var user = await _context.UserBackground
+                    .FirstOrDefaultAsync(x => x.Id == model.Id);
+
+
+
+                //Update
+
+                user.Title = model.Title;
+                user.Production = model.Production;
+                user.Role = model.Role;
+                user.Director = model.Director;
+                user.Year = model.Year;
+
+
+                await _context.SaveChangesAsync();
+                return true;
+
+            }
+            catch(Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<bool> AddUserBackgroundDataAsync(UserBackgroundDTO model)
+        {
+            try
+            {
+                var existingUser = await _context.UsersTable.Include(x => x.UserBackgrounds).FirstOrDefaultAsync(x => x.Id == model.UserId);
+
+                if(existingUser != null)
+                {
+                    existingUser.UserBackgrounds.Add(new UserBackground
+                    {
+                        Title = model.Title,
+                        Production = model.Production,
+                        Role = model.Role,
+                        Director = model.Director,
+                        Year = model.Year,
+                        User = existingUser
+                    });
+
+                    await _context.SaveChangesAsync();
+                }
+
+                return true;
+            }catch(Exception ex)
+            {
+                throw;
+            }
+        }
 
         public string HashPassword(string password)
         {

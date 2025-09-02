@@ -24,7 +24,7 @@ namespace UserAPI.Models
         public Appearance? Appearance { get; set; } = new Appearance();
         public PersonalBackground? PersonalBackground { get; set; } = new PersonalBackground();
 
-        public UserBackground? UserBackground { get; set; }
+        public ICollection<UserBackground> UserBackgrounds { get; set; } = new List<UserBackground>();
 
     }
 
@@ -40,6 +40,8 @@ namespace UserAPI.Models
         public string? Production { get; set; }
         public string? Role { get; set; }
         public string? Director { get; set; }
+        public string? Year { get; set; }
+        public bool IsDeleted { get; set; } = false;
 
     }
 

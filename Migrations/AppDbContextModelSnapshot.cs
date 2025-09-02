@@ -140,6 +140,9 @@ namespace UserAPI.Migrations
                     b.Property<string>("Director")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Production")
                         .HasColumnType("nvarchar(max)");
 
@@ -152,10 +155,12 @@ namespace UserAPI.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Year")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId")
-                        .IsUnique();
+                    b.HasIndex("UserId");
 
                     b.ToTable("UserBackground");
                 });
@@ -178,8 +183,8 @@ namespace UserAPI.Migrations
             modelBuilder.Entity("UserAPI.Models.UserBackground", b =>
                 {
                     b.HasOne("UserAPI.Models.User", "User")
-                        .WithOne("UserBackground")
-                        .HasForeignKey("UserAPI.Models.UserBackground", "UserId")
+                        .WithMany("UserBackgrounds")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -188,7 +193,7 @@ namespace UserAPI.Migrations
 
             modelBuilder.Entity("UserAPI.Models.User", b =>
                 {
-                    b.Navigation("UserBackground");
+                    b.Navigation("UserBackgrounds");
                 });
 #pragma warning restore 612, 618
         }
