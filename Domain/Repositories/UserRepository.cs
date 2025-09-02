@@ -21,6 +21,7 @@ namespace UserAPI.Domain.Repositories
         public async Task<User> GetTheUserDataAsync(Guid id)
         {
             return await _context.UsersTable.Include(x=>x.Appearance)
+                .Include(x => x.PersonalBackground)
                 .FirstOrDefaultAsync(x=>x.Id==id);
         }
 
@@ -156,7 +157,7 @@ namespace UserAPI.Domain.Repositories
 
         public async Task<bool> UpdateUserDataAsync(User user)
         {
-            var getUser = await _context.UsersTable.Include(x => x.Appearance)
+            var getUser = await _context.UsersTable.Include(x => x.Appearance).Include(x => x.PersonalBackground)
                 .FirstOrDefaultAsync(x=>x.Id==user.Id);
 
 
@@ -217,6 +218,19 @@ namespace UserAPI.Domain.Repositories
                 if (!string.IsNullOrEmpty(user.Appearance.EyeColor))
                 {
                     getUser.Appearance.EyeColor = user.Appearance.EyeColor;
+                }
+            }
+
+            if(user.PersonalBackground != null)
+            {
+                if (!string.IsNullOrEmpty(user.PersonalBackground.Ethnicity))
+                {
+                    getUser.PersonalBackground.Ethnicity = user.PersonalBackground.Ethnicity;
+                }
+
+                if (!string.IsNullOrEmpty(user.PersonalBackground.NaturalAccent))
+                {
+                    getUser.PersonalBackground.NaturalAccent = user.PersonalBackground.NaturalAccent;
                 }
             }
 

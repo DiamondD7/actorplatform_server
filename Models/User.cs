@@ -37,7 +37,7 @@ namespace UserAPI.Models
     public class PersonalBackground
     {
         public int Id { get; set; }
-        public string? Ethnicity { get; set; }
-        public string? NaturalAccent { get; set; }
+        public string? Ethnicity { get; set; } = "";
+        public string? NaturalAccent { get; set; } = "";
     }
 }
