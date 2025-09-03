@@ -143,6 +143,9 @@ namespace UserAPI.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<bool?>("IsFeatured")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Production")
                         .HasColumnType("nvarchar(max)");
 

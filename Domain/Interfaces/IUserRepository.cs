@@ -7,6 +7,7 @@ namespace UserAPI.Domain.Interfaces
     {
         Task<User> GetTheUserDataAsync(Guid id);
         Task<List<UserBackground>> GetUserBackgroundAsync(Guid userId);
+        Task<List<UserBackground>>GetFeaturedBackgroundsAsync(Guid userId);
         Task<JwtDTO> GenerateTokenAsync(User user);
         Task<bool> CreateUserAsync(User user);
         Task<User> CheckLoginCredentials(User user);

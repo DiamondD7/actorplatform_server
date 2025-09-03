@@ -42,6 +42,7 @@ namespace UserAPI.Models
         public string? Director { get; set; }
         public string? Year { get; set; }
         public bool IsDeleted { get; set; } = false;
+        public bool? IsFeatured { get; set; }
 
     }
 

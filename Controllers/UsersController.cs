@@ -42,6 +42,15 @@ namespace UserAPI.Controllers
             return Ok(getList);
         }
 
+        [Authorize]
+        [HttpGet("get-featured-backgrounds")]
+        public async Task<ActionResult<List<UserBackground>>> GetFeaturedBackgrounds([FromQuery] Guid userId)
+        {
+            var getList = await _userRepository.GetFeaturedBackgroundsAsync(userId);
+
+            return Ok(getList);
+        }
+
 
         [HttpPost("create-user")]
         public async Task<ActionResult<User>>CreateUser(User user)

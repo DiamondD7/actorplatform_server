@@ -34,6 +34,14 @@ namespace UserAPI.Domain.Repositories
             return getList;
         }
 
+        public async Task<List<UserBackground>> GetFeaturedBackgroundsAsync(Guid userId)
+        {
+            var getList = await _context.UserBackground.Where(x => x.UserId == userId && x.IsFeatured == true)
+                .ToListAsync();
+
+            return getList;
+        }
+
 
 
 
@@ -268,6 +276,12 @@ namespace UserAPI.Domain.Repositories
 
                 if(model.IsDeleted == false) //becuase if the user decides to delete, then no need to update the other properties
                 {
+                    if(model.IsFeatured != null)
+                    {
+                        user.IsFeatured = model.IsFeatured;
+                    }
+                    
+
                     if (!string.IsNullOrEmpty(model.Title))
                     {
                         user.Title = model.Title;
@@ -296,6 +310,7 @@ namespace UserAPI.Domain.Repositories
                 else
                 {
                     user.IsDeleted = model.IsDeleted;
+                    user.IsFeatured = false;
                 }
 
                
