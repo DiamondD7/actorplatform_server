@@ -9,5 +9,6 @@
         public string? Role { get; set; }
         public string? Director { get; set; }
         public string? Year { get; set; }
+        public bool IsDeleted { get; set; } = false;
     }
 }

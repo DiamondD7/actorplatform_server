@@ -28,7 +28,8 @@ namespace UserAPI.Domain.Repositories
 
         public async Task<List<UserBackground>> GetUserBackgroundAsync(Guid userId)
         {
-            var getList = await _context.UserBackground.Where(x => x.UserId == userId).ToListAsync();
+            var getList = await _context.UserBackground.Where(x => x.UserId == userId && x.IsDeleted == false)
+                .ToListAsync();
 
             return getList;
         }
@@ -265,11 +266,39 @@ namespace UserAPI.Domain.Repositories
 
                 //Update
 
-                user.Title = model.Title;
-                user.Production = model.Production;
-                user.Role = model.Role;
-                user.Director = model.Director;
-                user.Year = model.Year;
+                if(model.IsDeleted == false) //becuase if the user decides to delete, then no need to update the other properties
+                {
+                    if (!string.IsNullOrEmpty(model.Title))
+                    {
+                        user.Title = model.Title;
+                    }
+
+                    if (!string.IsNullOrEmpty(model.Production))
+                    {
+                        user.Production = model.Production;
+                    }
+
+                    if (!string.IsNullOrEmpty(model.Role))
+                    {
+                        user.Role = model.Role;
+                    }
+
+                    if (!string.IsNullOrEmpty(model.Director))
+                    {
+                        user.Director = model.Director;
+                    }
+
+                    if (!string.IsNullOrEmpty(model.Year))
+                    {
+                        user.Year = model.Year;
+                    }
+                }
+                else
+                {
+                    user.IsDeleted = model.IsDeleted;
+                }
+
+               
 
 
                 await _context.SaveChangesAsync();
