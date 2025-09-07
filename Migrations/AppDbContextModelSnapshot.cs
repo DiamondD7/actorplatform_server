@@ -146,7 +146,13 @@ namespace UserAPI.Migrations
                     b.Property<bool?>("IsFeatured")
                         .HasColumnType("bit");
 
+                    b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Production")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProductionType")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Role")
@@ -166,6 +172,27 @@ namespace UserAPI.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserBackground");
+                });
+
+            modelBuilder.Entity("UserAPI.Models.VideoUrls", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Url")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserBackgroundId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserBackgroundId");
+
+                    b.ToTable("VideoUrls");
                 });
 
             modelBuilder.Entity("UserAPI.Models.User", b =>
@@ -194,9 +221,25 @@ namespace UserAPI.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("UserAPI.Models.VideoUrls", b =>
+                {
+                    b.HasOne("UserAPI.Models.UserBackground", "UserBackground")
+                        .WithMany("VideoUrls")
+                        .HasForeignKey("UserBackgroundId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("UserBackground");
+                });
+
             modelBuilder.Entity("UserAPI.Models.User", b =>
                 {
                     b.Navigation("UserBackgrounds");
+                });
+
+            modelBuilder.Entity("UserAPI.Models.UserBackground", b =>
+                {
+                    b.Navigation("VideoUrls");
                 });
 #pragma warning restore 612, 618
         }

@@ -26,12 +26,27 @@ namespace UserAPI.Domain.Repositories
                 .FirstOrDefaultAsync(x=>x.Id==id);
         }
 
-        public async Task<List<UserBackground>> GetUserBackgroundAsync(Guid userId)
+        public async Task<List<UserBackgroundDTO>> GetUserBackgroundAsync(Guid userId)
         {
-            var getList = await _context.UserBackground.Where(x => x.UserId == userId && x.IsDeleted == false)
+            var getList = await _context.UserBackground.Include(x=>x.VideoUrls).Where(x => x.UserId == userId && x.IsDeleted == false)
                 .ToListAsync();
 
-            return getList;
+            var dtoList = getList.Select(ub => new UserBackgroundDTO
+            {
+                Id = ub.Id,
+                Title = ub.Title,
+                Production = ub.Production,
+                ProductionType = ub.ProductionType,
+                Role = ub.Role,
+                Director = ub.Director,
+                Year = ub.Year,
+                Note = ub.Note,
+                IsDeleted = ub.IsDeleted,
+                IsFeatured = ub.IsFeatured,
+                VideoUrls = ub.VideoUrls.Select(v => v.Url).ToList()
+            }).ToList();
+
+            return dtoList;
         }
 
         public async Task<List<UserBackground>> GetFeaturedBackgroundsAsync(Guid userId)
@@ -267,7 +282,7 @@ namespace UserAPI.Domain.Repositories
         {
             try
             {
-                var user = await _context.UserBackground
+                var user = await _context.UserBackground.Include(x => x.VideoUrls)
                     .FirstOrDefaultAsync(x => x.Id == model.Id);
 
 
@@ -306,6 +321,23 @@ namespace UserAPI.Domain.Repositories
                     {
                         user.Year = model.Year;
                     }
+
+                    if (!string.IsNullOrEmpty(model.Note))
+                    {
+                        user.Note = model.Note;
+                    }
+
+                    if (!string.IsNullOrEmpty(model.ProductionType))
+                    {
+                        user.ProductionType = model.ProductionType;
+                    }
+
+                    if(model.VideoUrls != null)
+                    {
+                        user.VideoUrls = model.VideoUrls?
+                                            .Select(url => new VideoUrls { Url = url})
+                                            .ToList() ?? new List<VideoUrls>();
+                    }
                 }
                 else
                 {
@@ -338,11 +370,17 @@ namespace UserAPI.Domain.Repositories
                     {
                         Title = model.Title,
                         Production = model.Production,
+                        ProductionType = model.ProductionType,
                         Role = model.Role,
                         Director = model.Director,
                         Year = model.Year,
-                        User = existingUser
+                        User = existingUser,
+                        Note = model.Note,
+                        VideoUrls = model.VideoUrls?
+                                    .Select(url => new VideoUrls { Url = url })
+                                    .ToList() ?? new List<VideoUrls>()
                     });
+
 
                     await _context.SaveChangesAsync();
                 }
