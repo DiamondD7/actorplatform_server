@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Cryptography;
 using System.Text;
 using UserAPI.Data;
 using UserAPI.Domain.Interfaces;
@@ -26,11 +28,15 @@ namespace actorplatform_server
                 x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(x =>
             {
+                var rsa = RSA.Create();
+                var publicKey = File.ReadAllText(Path.Combine(builder.Environment.ContentRootPath, "Keys", "public.key"));
+                rsa.ImportFromPem(publicKey);
+
                 x.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidIssuer = config["JwtSettings:Issuer"],
                     ValidAudience = config["JwtSettings:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JwtSettings:Key"])),
+                    IssuerSigningKey = new RsaSecurityKey(rsa),
                     ValidateIssuer = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
@@ -73,6 +79,10 @@ namespace actorplatform_server
             builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("defaultConnection")));
             builder.Services.AddScoped<IUserRepository, UserRepository>();
 
+            builder.Services.Configure<FormOptions>(options =>
+            {
+                options.MultipartBodyLengthLimit = 524_288_000; // 500 MB
+            });
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

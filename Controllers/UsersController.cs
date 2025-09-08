@@ -10,7 +10,7 @@ using UserAPI.Models;
 namespace UserAPI.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]
+    [ApiController] 
     public class UsersController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
@@ -18,6 +18,15 @@ namespace UserAPI.Controllers
         {
             _userRepository = userRepository;
         }
+
+        [Authorize]
+        [HttpGet("validate-user-token")]
+        public async Task<IActionResult> ValidateTokens()
+        {
+
+            return Ok(new {code=200, message="Validated", status=true});
+        }
+
 
         [Authorize]
         [HttpGet("{id}")]
