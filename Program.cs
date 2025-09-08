@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
@@ -78,6 +79,10 @@ namespace actorplatform_server
             builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("defaultConnection")));
             builder.Services.AddScoped<IUserRepository, UserRepository>();
 
+            builder.Services.Configure<FormOptions>(options =>
+            {
+                options.MultipartBodyLengthLimit = 524_288_000; // 500 MB
+            });
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
