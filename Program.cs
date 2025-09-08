@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Cryptography;
 using System.Text;
 using UserAPI.Data;
 using UserAPI.Domain.Interfaces;
@@ -26,11 +27,15 @@ namespace actorplatform_server
                 x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(x =>
             {
+                var rsa = RSA.Create();
+                var publicKey = File.ReadAllText(Path.Combine(builder.Environment.ContentRootPath, "Keys", "public.key"));
+                rsa.ImportFromPem(publicKey);
+
                 x.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidIssuer = config["JwtSettings:Issuer"],
                     ValidAudience = config["JwtSettings:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JwtSettings:Key"])),
+                    IssuerSigningKey = new RsaSecurityKey(rsa),
                     ValidateIssuer = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,

@@ -11,11 +11,13 @@ namespace UserAPI.Services.Jwt
     {
         private readonly IConfiguration _configuration;
         private readonly RSA _privateKey;
+        private readonly RSA _publicKey;
         public JwtService(IConfiguration configuration)
         {
             _configuration = configuration;
-
+            _publicKey = RSA.Create();
             _privateKey = RSA.Create();
+            _publicKey.ImportFromPem(File.ReadAllText(_configuration["JwtSettings:PublicKeyPath"]));
             _privateKey.ImportFromPem(File.ReadAllText(_configuration["JwtSettings:PrivateKeyPath"]));
         }
 
@@ -92,12 +94,15 @@ namespace UserAPI.Services.Jwt
 
         public ClaimsPrincipal? GetTokenPrincipal(string token)
         {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]));
+            //var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]));
+
+
+
             var validation = new TokenValidationParameters
             {
                 ValidIssuer = _configuration["JwtSettings:Issuer"],
                 ValidAudience = _configuration["JwtSettings:Audience"],
-                IssuerSigningKey = securityKey,
+                IssuerSigningKey = new RsaSecurityKey(_publicKey),
                 ValidateIssuer = true,
                 ValidateAudience = true,
                 ValidateLifetime = false,//false because system is expecting the Access Token is already expired, to create a new one.
