@@ -1,10 +1,13 @@
-﻿using UserAPI.Models;
+﻿using System.Collections.ObjectModel;
+using UserAPI.Models;
 
 namespace UserAPI.Domain.Interfaces
 {
     public interface IUserRepository
     {
         Task<User> GetTheUserDataAsync(Guid id);
+        Task<List<UserBackgroundDTO>> GetUserBackgroundAsync(Guid userId);
+        Task<List<UserBackground>>GetFeaturedBackgroundsAsync(Guid userId);
         Task<JwtDTO> GenerateTokenAsync(User user);
         Task<bool> CreateUserAsync(User user);
         Task<User> CheckLoginCredentials(User user);
@@ -12,6 +15,8 @@ namespace UserAPI.Domain.Interfaces
         Task<bool> CheckExistingUserNameAsync(string userName);
         Task<string>UploadProfilePictureAsync(IFormFile file);
         Task<bool> UpdateUserDataAsync(User user);
+        Task<bool>UpdateUserBackgroundDataAsync(UserBackgroundDTO model);
+        Task<bool> AddUserBackgroundDataAsync(UserBackgroundDTO model);
         string HashPassword(string password);
     }
 }

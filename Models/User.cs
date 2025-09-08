@@ -24,7 +24,7 @@ namespace UserAPI.Models
         public Appearance? Appearance { get; set; } = new Appearance();
         public PersonalBackground? PersonalBackground { get; set; } = new PersonalBackground();
 
-        public UserBackground? UserBackground { get; set; }
+        public ICollection<UserBackground> UserBackgrounds { get; set; } = new List<UserBackground>();
 
     }
 
@@ -38,9 +38,25 @@ namespace UserAPI.Models
 
         public string? Title { get; set; }
         public string? Production { get; set; }
+        public string? ProductionType { get; set; }
         public string? Role { get; set; }
         public string? Director { get; set; }
+        public string? Year { get; set; }
+        public string? Note { get; set; }
+        public bool IsDeleted { get; set; } = false;
+        public bool? IsFeatured { get; set; }
+        public List<VideoUrls> VideoUrls { get; set; } = new();
 
+    }
+
+    public class VideoUrls
+    {
+        [Key]
+        public int Id { get; set; }
+        [ForeignKey(nameof(UserBackground))]
+        public int UserBackgroundId { get; set; }
+        public UserBackground UserBackground { get; set; } = null!;
+        public string? Url { get; set; }
     }
 
     public class Appearance

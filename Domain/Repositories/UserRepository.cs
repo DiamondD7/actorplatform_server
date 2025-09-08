@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Collections.ObjectModel;
 using System.Security.Cryptography;
 using System.Text;
 using UserAPI.Data;
@@ -24,6 +25,40 @@ namespace UserAPI.Domain.Repositories
                 .Include(x => x.PersonalBackground)
                 .FirstOrDefaultAsync(x=>x.Id==id);
         }
+
+        public async Task<List<UserBackgroundDTO>> GetUserBackgroundAsync(Guid userId)
+        {
+            var getList = await _context.UserBackground.Include(x=>x.VideoUrls).Where(x => x.UserId == userId && x.IsDeleted == false)
+                .ToListAsync();
+
+            var dtoList = getList.Select(ub => new UserBackgroundDTO
+            {
+                Id = ub.Id,
+                Title = ub.Title,
+                Production = ub.Production,
+                ProductionType = ub.ProductionType,
+                Role = ub.Role,
+                Director = ub.Director,
+                Year = ub.Year,
+                Note = ub.Note,
+                IsDeleted = ub.IsDeleted,
+                IsFeatured = ub.IsFeatured,
+                VideoUrls = ub.VideoUrls.Select(v => v.Url).ToList()
+            }).ToList();
+
+            return dtoList;
+        }
+
+        public async Task<List<UserBackground>> GetFeaturedBackgroundsAsync(Guid userId)
+        {
+            var getList = await _context.UserBackground.Where(x => x.UserId == userId && x.IsFeatured == true)
+                .ToListAsync();
+
+            return getList;
+        }
+
+
+
 
         public async Task<JwtDTO> GenerateTokenAsync(User user)
         {
@@ -242,6 +277,120 @@ namespace UserAPI.Domain.Repositories
             return true;
         }
 
+
+        public async Task<bool> UpdateUserBackgroundDataAsync(UserBackgroundDTO model)
+        {
+            try
+            {
+                var user = await _context.UserBackground.Include(x => x.VideoUrls)
+                    .FirstOrDefaultAsync(x => x.Id == model.Id);
+
+
+
+                //Update
+
+                if(model.IsDeleted == false) //becuase if the user decides to delete, then no need to update the other properties
+                {
+                    if(model.IsFeatured != null)
+                    {
+                        user.IsFeatured = model.IsFeatured;
+                    }
+                    
+
+                    if (!string.IsNullOrEmpty(model.Title))
+                    {
+                        user.Title = model.Title;
+                    }
+
+                    if (!string.IsNullOrEmpty(model.Production))
+                    {
+                        user.Production = model.Production;
+                    }
+
+                    if (!string.IsNullOrEmpty(model.Role))
+                    {
+                        user.Role = model.Role;
+                    }
+
+                    if (!string.IsNullOrEmpty(model.Director))
+                    {
+                        user.Director = model.Director;
+                    }
+
+                    if (!string.IsNullOrEmpty(model.Year))
+                    {
+                        user.Year = model.Year;
+                    }
+
+                    if (!string.IsNullOrEmpty(model.Note))
+                    {
+                        user.Note = model.Note;
+                    }
+
+                    if (!string.IsNullOrEmpty(model.ProductionType))
+                    {
+                        user.ProductionType = model.ProductionType;
+                    }
+
+                    if(model.VideoUrls != null)
+                    {
+                        user.VideoUrls = model.VideoUrls?
+                                            .Select(url => new VideoUrls { Url = url})
+                                            .ToList() ?? new List<VideoUrls>();
+                    }
+                }
+                else
+                {
+                    user.IsDeleted = model.IsDeleted;
+                    user.IsFeatured = false;
+                }
+
+               
+
+
+                await _context.SaveChangesAsync();
+                return true;
+
+            }
+            catch(Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<bool> AddUserBackgroundDataAsync(UserBackgroundDTO model)
+        {
+            try
+            {
+                var existingUser = await _context.UsersTable.Include(x => x.UserBackgrounds).FirstOrDefaultAsync(x => x.Id == model.UserId);
+
+                if(existingUser != null)
+                {
+                    existingUser.UserBackgrounds.Add(new UserBackground
+                    {
+                        Title = model.Title,
+                        Production = model.Production,
+                        ProductionType = model.ProductionType,
+                        Role = model.Role,
+                        Director = model.Director,
+                        Year = model.Year,
+                        User = existingUser,
+                        Note = model.Note,
+                        VideoUrls = model.VideoUrls?
+                                    .Select(url => new VideoUrls { Url = url })
+                                    .ToList() ?? new List<VideoUrls>()
+                    });
+
+
+                    await _context.SaveChangesAsync();
+                }
+
+                return true;
+            }catch(Exception ex)
+            {
+                throw;
+            }
+        }
 
         public string HashPassword(string password)
         {

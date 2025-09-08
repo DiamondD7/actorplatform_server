@@ -140,7 +140,19 @@ namespace UserAPI.Migrations
                     b.Property<string>("Director")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool?>("IsFeatured")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Production")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProductionType")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Role")
@@ -152,12 +164,35 @@ namespace UserAPI.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Year")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId")
-                        .IsUnique();
+                    b.HasIndex("UserId");
 
                     b.ToTable("UserBackground");
+                });
+
+            modelBuilder.Entity("UserAPI.Models.VideoUrls", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Url")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserBackgroundId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserBackgroundId");
+
+                    b.ToTable("VideoUrls");
                 });
 
             modelBuilder.Entity("UserAPI.Models.User", b =>
@@ -178,17 +213,33 @@ namespace UserAPI.Migrations
             modelBuilder.Entity("UserAPI.Models.UserBackground", b =>
                 {
                     b.HasOne("UserAPI.Models.User", "User")
-                        .WithOne("UserBackground")
-                        .HasForeignKey("UserAPI.Models.UserBackground", "UserId")
+                        .WithMany("UserBackgrounds")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("UserAPI.Models.VideoUrls", b =>
+                {
+                    b.HasOne("UserAPI.Models.UserBackground", "UserBackground")
+                        .WithMany("VideoUrls")
+                        .HasForeignKey("UserBackgroundId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("UserBackground");
+                });
+
             modelBuilder.Entity("UserAPI.Models.User", b =>
                 {
-                    b.Navigation("UserBackground");
+                    b.Navigation("UserBackgrounds");
+                });
+
+            modelBuilder.Entity("UserAPI.Models.UserBackground", b =>
+                {
+                    b.Navigation("VideoUrls");
                 });
 #pragma warning restore 612, 618
         }

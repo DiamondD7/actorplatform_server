@@ -33,6 +33,24 @@ namespace UserAPI.Controllers
             return Ok(getData);
         }
 
+        [Authorize]
+        [HttpGet("get-user-backgrounds")]
+        public async Task<ActionResult<List<UserBackground>>>GetUserBackgrounds([FromQuery]Guid userId)
+        {
+            var getList = await _userRepository.GetUserBackgroundAsync(userId);
+
+            return Ok(getList);
+        }
+
+        [Authorize]
+        [HttpGet("get-featured-backgrounds")]
+        public async Task<ActionResult<List<UserBackground>>> GetFeaturedBackgrounds([FromQuery] Guid userId)
+        {
+            var getList = await _userRepository.GetFeaturedBackgroundsAsync(userId);
+
+            return Ok(getList);
+        }
+
 
         [HttpPost("create-user")]
         public async Task<ActionResult<User>>CreateUser(User user)
@@ -138,6 +156,33 @@ namespace UserAPI.Controllers
 
             return Ok(new { code = 200, message = "Successful Request", status = true });
         }
+
+        [Authorize]
+        [HttpPut("update-user-background")]
+        public async Task<IActionResult>UpdateUserBackground(UserBackgroundDTO model)
+        {
+            var updateUserBackground = await _userRepository.UpdateUserBackgroundDataAsync(model);
+            if(updateUserBackground == false)
+            {
+                return BadRequest(new { code = 400, message = "Bad Request", status = false });
+            }
+
+            return Ok(new { code = 200, message = "Successful Request", status = true });
+        }
+
+        [Authorize]
+        [HttpPost("add-user-background")]
+        public async Task<IActionResult> AddUserBackground(UserBackgroundDTO model)
+        {
+            var updateUserBackground = await _userRepository.AddUserBackgroundDataAsync(model);
+            if (updateUserBackground == false)
+            {
+                return BadRequest(new { code = 400, message = "Bad Request", status = false });
+            }
+
+            return Ok(new { code = 200, message = "Successful Request", status = true });
+        }
+
 
 
         [HttpPost("logout")]
