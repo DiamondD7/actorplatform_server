@@ -10,15 +10,24 @@ namespace UserAPI.Services.Jwt
     public class JwtService
     {
         private readonly IConfiguration _configuration;
+        private readonly RSA _privateKey;
         public JwtService(IConfiguration configuration)
         {
             _configuration = configuration;
+
+            _privateKey = RSA.Create();
+            _privateKey.ImportFromPem(File.ReadAllText(_configuration["JwtSettings:PrivateKeyPath"]));
         }
 
         public JwtDTO GenerateTokens(User user)
         {
             try
             {
+                var creds = new SigningCredentials(
+                       new RsaSecurityKey(_privateKey),
+                       SecurityAlgorithms.RsaSha256
+                   );
+
                 var issuer = _configuration["JwtSettings:Issuer"];
                 var audience = _configuration["JwtSettings:Audience"];
                 var key = _configuration["JwtSettings:Key"];
@@ -40,7 +49,8 @@ namespace UserAPI.Services.Jwt
                     Expires = tokenExpiryTimeStamp,
                     Issuer = issuer,
                     Audience = audience,
-                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key)), SecurityAlgorithms.HmacSha256Signature),
+                    SigningCredentials = creds,
+                    //SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key)), SecurityAlgorithms.HmacSha256Signature),
                 };
 
                 var tokenHandler = new JwtSecurityTokenHandler();
